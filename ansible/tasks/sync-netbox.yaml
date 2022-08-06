@@ -23,5 +23,4 @@
           name: "{{ item.status.name }}"
           cluster: "{{ item.status.cluster_reference.name }}"
       with_items: 
-        - "{{ result['response']['entities'] }}"
-
+        - "{{ result['response']['entities'][0] }}"
