@@ -1,0 +1,5 @@
+netbox_ip          = "http://localhost:8000"
+netbox_token       = <netbox API token>
+nutanix_cluster_ip = "192.168.20.239"
+nutanix_username   = "admin"
+nutanix_password   = <password>

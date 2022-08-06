@@ -11,6 +11,15 @@ module "docker" {
   tags    = ["terraform", "docker", netbox_cluster.emc_1.name]
 }
 
+module "steven_bs" {
+  source = "./modules/host"
+
+  cluster = data.nutanix_cluster.demo
+  ip      = "192.168.20.82/24"
+  name    = "steven-bullshit"
+  tags    = ["terraform", "docker", netbox_cluster.emc_1.name]
+}
+
 /* module "other-node" {
   source = "./modules/host"
 
