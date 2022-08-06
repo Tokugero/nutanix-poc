@@ -1,0 +1,6 @@
+netbox/*
+!netbox/.gitkeep
+redis/*
+!redis/.gitkeep
+postgres/*
+!postgres/.gitkeep

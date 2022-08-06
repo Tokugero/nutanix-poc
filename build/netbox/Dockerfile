@@ -1,0 +1,1 @@
+FROM lscr.io/linuxserver/netbox:3.2.5

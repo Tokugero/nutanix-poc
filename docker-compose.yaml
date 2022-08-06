@@ -1,0 +1,86 @@
+services:
+  netbox:
+    build: ./build/netbox/
+    container_name: netbox
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Los_Angeles
+      - SUPERUSER_EMAIL=${SUPERUSER_EMAIL}
+      - SUPERUSER_PASSWORD=${SUPERUSER_PASSWORD}
+      - ALLOWED_HOST="*"
+      - DB_NAME=netbox
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    volumes:
+      - ./services/netbox/:/config
+    ports:
+      - 8000:8000
+    restart: unless-stopped
+  redis:
+    image: redis:alpine
+    container_name: redis
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Los_Angeles
+    volumes:
+      - ./services/redis/:/data
+    restart: unless-stopped
+  postgres:
+    image: postgres:alpine
+    container_name: postgres
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Los_Angeles
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=netbox
+    volumes:
+      - ./services/postgres/:/var/lib/postgresql/data
+    restart: unless-stopped
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: unless-stopped
+    environment:
+      INFLUXDB_PASSWORD: ${INFLUXDB_PASSWORD}
+    volumes:
+      - grafana:/var/lib/grafana
+      - ./services/grafana/provisioning:/etc/grafana/provisioning
+    ports:
+      - 3000:3000
+  influxdb:
+    image: influxdb:2.3-alpine
+    container_name: influxdb
+    restart: unless-stopped
+    volumes:
+      - influx:/var/lib/influxdb2
+    ports:
+      - 8086:8086
+    environment:
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_PASSWORD}
+      DOCKER_INFLUXDB_INIT_BUCKET: default
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_ORG: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_PASSWORD}
+      DOCKER_INFLUXDB_INIT_RETENTION: 1w # One Week
+      DOCKER_INFLUXDB_INIT_USERNAME: initusername
+  telegraf:
+    image: telegraf:alpine
+    container_name: telegraf
+    restart: unless-stopped
+    volumes:
+      - ./services/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf
+      - ./services/telegraf/telegraf.d/:/etc/telegraf/telegraf.d/
+    environment:
+      INFLUXDB_PASSWORD: ${INFLUXDB_PASSWORD}
+
+volumes:
+  influx:
+  grafana:

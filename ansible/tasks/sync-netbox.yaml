@@ -1,0 +1,27 @@
+# Probably best to just build & use the docker container referenced in the README.md for this version of ansible+collection
+---
+- name: Sync Nutanix VMs <> Netbox
+  hosts: localhost
+  module_defaults:
+    group/nutanix.ncp.ntnx:
+      nutanix_host: 192.168.20.239
+      nutanix_username: admin
+      nutanix_password: "{{ lookup('env', 'NUTANIX_PASS') }}"
+      validate_certs: false
+  tasks:
+    - name: Get all VMs in Nutanix Cluster
+      nutanix.ncp.ntnx_vms_info:
+      ignore_errors: yes
+      register: result
+    - name: Make sure all VMs exist in Netbox
+      netbox.netbox.netbox_virtual_machine:
+        netbox_url: http://192.168.20.213:8000
+        netbox_token: "{{ lookup('env', 'NETBOX_TOKEN') }}"
+        state: present
+        validate_certs: false
+        data:
+          name: "{{ item.status.name }}"
+          cluster: "{{ item.status.cluster_reference.name }}"
+      with_items: 
+        - "{{ result['response']['entities'] }}"
+
